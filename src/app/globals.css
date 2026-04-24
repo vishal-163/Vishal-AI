@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Google Fonts Import ───────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ─── Base Styles ───────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-[#09090b] text-zinc-100 font-sans;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: #fff;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ─── Component Layer ───────────────────────────── */
+@layer components {
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+  }
+
+  .glass-card-hover:hover {
+    @apply bg-white/[0.06] border-white/[0.1];
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.06);
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-brand-300 to-violet-400;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+           bg-gradient-to-r from-brand-500 to-violet-500
+           text-white font-semibold text-sm
+           transition-all duration-300
+           hover:from-brand-400 hover:to-violet-400
+           hover:shadow-lg hover:shadow-brand-500/25
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+           bg-white/[0.05] border border-white/[0.1]
+           text-zinc-200 font-semibold text-sm
+           transition-all duration-300
+           hover:bg-white/[0.1] hover:border-white/[0.15]
+           active:scale-[0.98];
+  }
+
+  /* Ghost Button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           text-zinc-400 font-medium text-sm
+           transition-all duration-200
+           hover:text-zinc-200 hover:bg-white/[0.05];
+  }
+
+  /* Danger Button */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+           bg-red-500/10 border border-red-500/20
+           text-red-400 font-semibold text-sm
+           transition-all duration-300
+           hover:bg-red-500/20 hover:border-red-500/30
+           active:scale-[0.98];
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl
+           bg-white/[0.03] border border-white/[0.08]
+           text-zinc-100 text-sm placeholder:text-zinc-600
+           transition-all duration-200
+           focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20
+           hover:border-white/[0.12];
+  }
+
+  /* Stat Card */
+  .stat-card {
+    @apply glass-card p-6 flex flex-col gap-2;
+  }
+
+  /* Code Block */
+  .code-block {
+    @apply bg-black/40 rounded-xl p-4 font-mono text-sm text-zinc-300
+           border border-white/[0.05] overflow-x-auto;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-active {
+    @apply badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+  }
+
+  .badge-revoked {
+    @apply badge bg-red-500/10 text-red-400 border border-red-500/20;
+  }
+
+  .badge-free {
+    @apply badge bg-zinc-500/10 text-zinc-400 border border-zinc-500/20;
+  }
+
+  .badge-pro {
+    @apply badge bg-brand-500/10 text-brand-400 border border-brand-500/20;
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hero background glow */
+  .hero-glow {
+    background: radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(99, 102, 241, 0.12),
+      transparent
+    );
+  }
+
+  /* Grid background pattern */
+  .grid-pattern {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Animate on scroll */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Markdown Container Styles */
+  .markdown-container {
+    @apply space-y-4 text-zinc-200 leading-relaxed;
+  }
+
+  .markdown-container p {
+    @apply mb-2 last:mb-0;
+  }
+
+  .markdown-container pre {
+    @apply my-4 first:mt-0 last:mb-0;
+  }
+
+  .markdown-container ul, .markdown-container ol {
+    @apply my-2 pl-2 space-y-2;
+  }
+
+  /* Blinking cursor for typing effect */
+  .typing-cursor {
+    @apply inline-block w-1.5 h-4 bg-brand-400 ml-1 align-middle animate-pulse;
+  }
+}
