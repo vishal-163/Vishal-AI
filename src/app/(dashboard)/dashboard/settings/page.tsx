@@ -13,9 +13,9 @@ interface Preferences {
 interface Profile {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
   plan: string;
-  preferences: Preferences;
+  preferences?: Preferences;
 }
 
 export default function SettingsPage() {

@@ -5,6 +5,11 @@ export interface Profile {
   name: string | null;
   avatar_url: string | null;
   plan: 'free' | 'pro' | 'enterprise';
+  preferences?: {
+    memory_enabled: boolean;
+    tone: 'professional' | 'friendly' | 'concise';
+    style: 'concise' | 'detailed';
+  };
   created_at: string;
 }
 
