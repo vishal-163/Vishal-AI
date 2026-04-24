@@ -84,40 +84,51 @@ export function renderMarkdown(text: string): React.ReactNode[] {
   });
 }
 
+type InlineMatch = {
+  type: 'code' | 'bold' | 'italic' | 'link';
+  match: RegExpMatchArray;
+  pos: number;
+};
+
 /** Process inline markdown: bold, italic, code, links */
 function processInline(text: string): React.ReactNode {
   if (!text) return text;
 
-  // Split by inline code, bold, italic, and links
   const tokens: React.ReactNode[] = [];
   let remaining = text;
   let keyCounter = 0;
 
   while (remaining.length > 0) {
-    // Inline code
     const codeMatch = remaining.match(/^(.*?)`([^`]+)`/);
-    // Bold
     const boldMatch = remaining.match(/^(.*?)\*\*(.+?)\*\*/);
-    // Italic
     const italicMatch = remaining.match(/^(.*?)\*(.+?)\*/);
-    // Link
     const linkMatch = remaining.match(/^(.*?)\[([^\]]+)\]\(([^)]+)\)/);
 
-    // Find earliest match
-    type MatchType = { type: string; match: RegExpMatchArray; pos: number } | null;
-    let earliest: MatchType = null;
+    let earliest: InlineMatch | null = null;
 
-    if (codeMatch && (!earliest || (codeMatch.index ?? 0) + codeMatch[1].length < earliest.pos)) {
-      earliest = { type: 'code', match: codeMatch, pos: codeMatch[1].length };
+    if (codeMatch) {
+      const pos = codeMatch[1].length;
+      if (!earliest || pos < earliest.pos) {
+        earliest = { type: 'code', match: codeMatch, pos };
+      }
     }
-    if (boldMatch && (!earliest || boldMatch[1].length < earliest.pos)) {
-      earliest = { type: 'bold', match: boldMatch, pos: boldMatch[1].length };
+    if (boldMatch) {
+      const pos = boldMatch[1].length;
+      if (!earliest || pos < earliest.pos) {
+        earliest = { type: 'bold', match: boldMatch, pos };
+      }
     }
-    if (linkMatch && (!earliest || linkMatch[1].length < earliest.pos)) {
-      earliest = { type: 'link', match: linkMatch, pos: linkMatch[1].length };
+    if (linkMatch) {
+      const pos = linkMatch[1].length;
+      if (!earliest || pos < earliest.pos) {
+        earliest = { type: 'link', match: linkMatch, pos };
+      }
     }
-    if (italicMatch && !boldMatch && (!earliest || italicMatch[1].length < earliest.pos)) {
-      earliest = { type: 'italic', match: italicMatch, pos: italicMatch[1].length };
+    if (italicMatch && !boldMatch) {
+      const pos = italicMatch[1].length;
+      if (!earliest || pos < earliest.pos) {
+        earliest = { type: 'italic', match: italicMatch, pos };
+      }
     }
 
     if (!earliest) {
@@ -126,7 +137,6 @@ function processInline(text: string): React.ReactNode {
     }
 
     const m = earliest.match;
-    // Add text before match
     if (m[1]) tokens.push(m[1]);
 
     switch (earliest.type) {
@@ -134,15 +144,12 @@ function processInline(text: string): React.ReactNode {
         tokens.push(
           <code key={keyCounter++} className="px-1.5 py-0.5 rounded-md bg-white/[0.08] text-brand-300 text-[13px] font-mono">{m[2]}</code>
         );
-        remaining = remaining.slice(m[0].length);
         break;
       case 'bold':
         tokens.push(<strong key={keyCounter++} className="font-semibold text-white">{m[2]}</strong>);
-        remaining = remaining.slice(m[0].length);
         break;
       case 'italic':
         tokens.push(<em key={keyCounter++} className="italic text-zinc-300">{m[2]}</em>);
-        remaining = remaining.slice(m[0].length);
         break;
       case 'link':
         tokens.push(
@@ -150,9 +157,9 @@ function processInline(text: string): React.ReactNode {
             {m[2]}
           </a>
         );
-        remaining = remaining.slice(m[0].length);
         break;
     }
+    remaining = remaining.slice(m[0].length);
   }
 
   return <>{tokens}</>;
