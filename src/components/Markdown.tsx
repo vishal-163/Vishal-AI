@@ -72,6 +72,26 @@ export function renderMarkdown(text: string): React.ReactNode[] {
             );
           }
 
+          // Tables (Simple detection)
+          if (line.includes('|') && line.trim().startsWith('|')) {
+            const cells = line.split('|').filter(c => c.trim() !== '' || line.indexOf(c) > 0 && line.indexOf(c) < line.length - 1);
+            if (cells.length > 0) {
+              return (
+                <div key={lineIndex} className="overflow-x-auto my-2">
+                  <table className="min-w-full border-collapse border border-white/10 text-sm">
+                    <tbody>
+                      <tr className="border-b border-white/10">
+                        {cells.map((cell, i) => (
+                          <td key={i} className="px-3 py-2 border-r border-white/10">{processInline(cell.trim())}</td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            }
+          }
+
           return <div key={lineIndex}>{processInline(line)}</div>;
         })}
       </React.Fragment>

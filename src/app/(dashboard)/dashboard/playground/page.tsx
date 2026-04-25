@@ -109,18 +109,18 @@ export default function PlaygroundPage() {
   }, [messages]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 py-6 sm:py-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">Playground</h1>
-          <p className="text-sm text-zinc-500 mt-1">Test the Vishal AI model</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Playground</h1>
+          <p className="text-xs sm:text-sm text-zinc-500 mt-1">Test the Vishal AI model</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={copyResponse} disabled={messages.length === 0} className="btn-ghost">
+          <button onClick={copyResponse} disabled={messages.length === 0} className="btn-ghost text-xs sm:text-sm">
             {copied ? '✓ Copied' : 'Copy Response'}
           </button>
-          <button onClick={clearChat} disabled={messages.length === 0} className="btn-ghost">
+          <button onClick={clearChat} disabled={messages.length === 0} className="btn-ghost text-xs sm:text-sm">
             Clear
           </button>
         </div>
@@ -198,7 +198,7 @@ export default function PlaygroundPage() {
           {/* Messages */}
           <div
             ref={responseRef}
-            className="glass-card flex-1 min-h-[400px] max-h-[600px] overflow-y-auto p-6 space-y-4"
+            className="glass-card flex-1 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto p-4 sm:p-6 space-y-4"
           >
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center">

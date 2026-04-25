@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 
 /* ─── Icon Components ─────────────────────────── */
@@ -139,16 +142,18 @@ const faqs = [
 
 /* ─── Page Component ─────────────────────────── */
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#09090b]">
       {/* ─── Navbar ──────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-violet-500 flex items-center justify-center font-bold text-white text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-brand-500 to-violet-500 flex items-center justify-center font-bold text-white text-xs sm:text-sm">
               V
             </div>
-            <span className="font-semibold text-lg text-white">Vishal AI</span>
+            <span className="font-semibold text-base sm:text-lg text-white">Vishal AI</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -156,43 +161,65 @@ export default function LandingPage() {
             <a href="#faq" className="text-sm text-zinc-400 hover:text-white transition-colors">FAQ</a>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="btn-ghost text-zinc-300">Log in</Link>
-            <Link href="/signup" className="btn-primary !py-2 !px-5 !text-sm">Get Started</Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/login" className="btn-ghost text-zinc-300 text-xs sm:text-sm !px-2 sm:!px-4">Log in</Link>
+            <Link href="/signup" className="btn-primary !py-1.5 sm:!py-2 !px-3 sm:!px-5 !text-xs sm:!text-sm">Get Started</Link>
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 text-zinc-400 hover:text-white transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/[0.06] bg-[#09090b]/95 backdrop-blur-xl px-4 py-3 space-y-2">
+            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm text-zinc-400 hover:text-white transition-colors">Features</a>
+            <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm text-zinc-400 hover:text-white transition-colors">FAQ</a>
+          </div>
+        )}
       </nav>
 
       {/* ─── Hero ────────────────────────────── */}
-      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden">
+      <section className="relative pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-44 md:pb-32 overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 hero-glow" />
         <div className="absolute inset-0 grid-pattern opacity-40" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-500/[0.07] rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-brand-500/[0.07] rounded-full blur-[120px]" />
 
-        <div className="relative max-w-5xl mx-auto px-6 text-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-xs text-zinc-400 mb-8">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[10px] sm:text-xs text-zinc-400 mb-6 sm:mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Now live — Powered by Vishal AI
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] sm:leading-[1.05] mb-4 sm:mb-6">
             <span className="text-white">One AI API for</span>
             <br />
             <span className="gradient-text">Every Project.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed text-balance">
+          <p className="text-sm sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed text-balance px-2">
             Build once. Power every website, chatbot, tool, and app
             with a single API key from your own AI platform.
           </p>
 
           {/* CTAs */}
-          <div className="flex items-center justify-center gap-4">
-            <Link href="/signup" className="btn-primary !py-3.5 !px-8 !text-base">
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
+            <Link href="/signup" className="btn-primary !py-3 sm:!py-3.5 !px-6 sm:!px-8 !text-sm sm:!text-base">
               Get Started Free
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -201,15 +228,15 @@ export default function LandingPage() {
           </div>
 
           {/* Code Preview */}
-          <div className="mt-16 max-w-xl mx-auto">
-            <div className="code-block text-left text-xs md:text-sm">
+          <div className="mt-10 sm:mt-16 max-w-xl mx-auto">
+            <div className="code-block text-left text-[10px] sm:text-xs md:text-sm overflow-x-auto">
               <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/[0.06]">
-                <span className="w-3 h-3 rounded-full bg-red-500/60" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                <span className="w-3 h-3 rounded-full bg-green-500/60" />
-                <span className="text-zinc-600 ml-2 text-xs">api-request.sh</span>
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/60" />
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/60" />
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/60" />
+                <span className="text-zinc-600 ml-2 text-[10px] sm:text-xs">api-request.sh</span>
               </div>
-              <code>
+              <code className="block whitespace-pre-wrap break-all sm:break-normal">
                 <span className="text-emerald-400">curl</span>{' '}
                 <span className="text-zinc-500">-X POST</span>{' '}
                 <span className="text-amber-300">your-domain.com/api/v1/chat/completions</span>{' '}
@@ -226,28 +253,28 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Features ────────────────────────── */}
-      <section id="features" className="relative py-24 md:py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+      <section id="features" className="relative py-16 sm:py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
               Everything you need to ship AI
             </h2>
-            <p className="text-zinc-400 text-lg max-w-xl mx-auto">
+            <p className="text-zinc-400 text-sm sm:text-lg max-w-xl mx-auto">
               One platform, one API, infinite possibilities.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {features.map((f, i) => (
               <div
                 key={i}
-                className="glass-card-hover p-6 group"
+                className="glass-card-hover p-5 sm:p-6 group"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 mb-4 group-hover:bg-brand-500/20 transition-colors">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 mb-3 sm:mb-4 group-hover:bg-brand-500/20 transition-colors">
                   {f.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">{f.desc}</p>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-1.5 sm:mb-2">{f.title}</h3>
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -257,30 +284,30 @@ export default function LandingPage() {
 
 
       {/* ─── FAQ ─────────────────────────────── */}
-      <section id="faq" className="relative py-24 md:py-32">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+      <section id="faq" className="relative py-16 sm:py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
               Frequently asked questions
             </h2>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {faqs.map((faq, i) => (
               <details
                 key={i}
                 className="glass-card group"
               >
-                <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
-                  <span className="text-sm font-medium text-zinc-200 pr-4">{faq.q}</span>
+                <summary className="flex items-center justify-between p-4 sm:p-5 cursor-pointer list-none">
+                  <span className="text-xs sm:text-sm font-medium text-zinc-200 pr-4">{faq.q}</span>
                   <svg
-                    className="w-5 h-5 text-zinc-500 shrink-0 transition-transform group-open:rotate-45"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 shrink-0 transition-transform group-open:rotate-45"
                     fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                   </svg>
                 </summary>
-                <div className="px-5 pb-5 text-sm text-zinc-400 leading-relaxed">
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-zinc-400 leading-relaxed">
                   {faq.a}
                 </div>
               </details>
@@ -290,18 +317,18 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CTA ─────────────────────────────── */}
-      <section className="relative py-24 md:py-32">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="glass-card p-12 md:p-16 relative overflow-hidden">
+      <section className="relative py-16 sm:py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <div className="glass-card p-8 sm:p-12 md:p-16 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-500/[0.08] to-violet-500/[0.08]" />
             <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
                 Ready to power your projects?
               </h2>
-              <p className="text-zinc-400 text-lg mb-8 max-w-lg mx-auto">
+              <p className="text-zinc-400 text-sm sm:text-lg mb-6 sm:mb-8 max-w-lg mx-auto">
                 Create your account, generate an API key, and start building in minutes.
               </p>
-              <Link href="/signup" className="btn-primary !py-3.5 !px-8 !text-base">
+              <Link href="/signup" className="btn-primary !py-3 sm:!py-3.5 !px-6 sm:!px-8 !text-sm sm:!text-base">
                 Get Started Free
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -313,9 +340,9 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Footer ──────────────────────────── */}
-      <footer className="border-t border-white/[0.06] py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <footer className="border-t border-white/[0.06] py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-violet-500 flex items-center justify-center font-bold text-white text-xs">
                 V
@@ -323,9 +350,9 @@ export default function LandingPage() {
               <span className="font-semibold text-white">Vishal AI</span>
             </div>
 
-            <div className="flex items-center gap-8">
-              <a href="#features" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Features</a>
-              <Link href="/login" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Dashboard</Link>
+            <div className="flex items-center gap-6 sm:gap-8">
+              <a href="#features" className="text-xs sm:text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Features</a>
+              <Link href="/login" className="text-xs sm:text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Dashboard</Link>
             </div>
 
             <p className="text-xs text-zinc-600">

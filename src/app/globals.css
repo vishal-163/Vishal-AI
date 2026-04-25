@@ -22,6 +22,8 @@
   body {
     @apply bg-[#09090b] text-zinc-100 font-sans;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   ::selection {
@@ -114,7 +116,7 @@
   .input-field {
     @apply w-full px-4 py-3 rounded-xl
            bg-white/[0.03] border border-white/[0.08]
-           text-zinc-100 text-sm placeholder:text-zinc-600
+           text-zinc-100 text-base sm:text-sm placeholder:text-zinc-600
            transition-all duration-200
            focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20
            hover:border-white/[0.12];
@@ -208,5 +210,38 @@
   /* Blinking cursor for typing effect */
   .typing-cursor {
     @apply inline-block w-1.5 h-4 bg-brand-400 ml-1 align-middle animate-pulse;
+  }
+
+  /* Safe area bottom padding for fixed elements on notched phones */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Responsive container padding */
+  .responsive-px {
+    @apply px-4 sm:px-6;
+  }
+}
+
+/* ─── Mobile-Specific Overrides ────────────────── */
+@media (max-width: 640px) {
+  /* Prevent iOS zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  /* Wider scrollbar for touch */
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  /* Ensure modals/overlays fill mobile properly */
+  .glass-card {
+    @apply rounded-xl;
   }
 }

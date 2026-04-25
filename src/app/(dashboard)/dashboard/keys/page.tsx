@@ -101,14 +101,14 @@ export default function ApiKeysPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 py-6 sm:py-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">API Keys</h1>
-          <p className="text-sm text-zinc-500 mt-1">Manage your API keys for authentication</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">API Keys</h1>
+          <p className="text-xs sm:text-sm text-zinc-500 mt-1">Manage your API keys for authentication</p>
         </div>
-        <button onClick={() => { setShowCreate(true); setNewKey(null); }} className="btn-primary">
+        <button onClick={() => { setShowCreate(true); setNewKey(null); }} className="btn-primary w-full sm:w-auto">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -118,8 +118,8 @@ export default function ApiKeysPage() {
 
       {/* New Key Modal */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={() => { if (!newKey) setShowCreate(false); }}>
-          <div className="glass-card w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-6" onClick={() => { if (!newKey) setShowCreate(false); }}>
+          <div className="glass-card w-full sm:max-w-md p-6 rounded-t-2xl sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
             {newKey ? (
               /* Show created key */
               <div>
@@ -216,7 +216,8 @@ export default function ApiKeysPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            {/* Desktop Table */}
+            <table className="w-full hidden sm:table">
               <thead>
                 <tr className="border-b border-white/[0.06]">
                   <th className="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Name</th>
@@ -300,6 +301,43 @@ export default function ApiKeysPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Mobile Card Layout */}
+            <div className="sm:hidden divide-y divide-white/[0.04]">
+              {keys.map((key) => (
+                <div key={key.id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-zinc-200 font-medium">{key.name}</span>
+                    {key.is_revoked ? (
+                      <span className="badge-revoked">Revoked</span>
+                    ) : (
+                      <span className="badge-active">Active</span>
+                    )}
+                  </div>
+                  <code className="block text-xs text-zinc-500 font-mono bg-black/30 px-2 py-1 rounded w-fit">{key.key_prefix}</code>
+                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                    <span>{key.usage_count} requests</span>
+                    <span>{timeAgo(key.last_used_at)}</span>
+                  </div>
+                  {!key.is_revoked && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => { setEditingId(key.id); setEditName(key.name); }}
+                        className="flex-1 text-center py-2 rounded-lg text-xs font-medium text-zinc-400 bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-colors"
+                      >
+                        Rename
+                      </button>
+                      <button
+                        onClick={() => revokeKey(key.id)}
+                        className="flex-1 text-center py-2 rounded-lg text-xs font-medium text-red-400/70 bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 transition-colors"
+                      >
+                        Revoke
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

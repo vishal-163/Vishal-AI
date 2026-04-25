@@ -1,9 +1,15 @@
 /**
  * Smart Query Classifier for Vishal AI
- * Detects whether a query needs web search, coding mode, or general chat
+ * Detects query type AND complexity to route to the best model
  */
 
 export type QueryType = 'search' | 'coding' | 'reasoning' | 'general';
+export type Complexity = 'simple' | 'complex';
+
+export interface QueryClassification {
+  type: QueryType;
+  complexity: Complexity;
+}
 
 // Keywords that indicate a need for real-time/current information
 const SEARCH_TRIGGERS = [
@@ -23,15 +29,15 @@ const SEARCH_TRIGGERS = [
   'weather', 'temperature', 'forecast', 'rain', 'climate today',
   // Politics & government
   'election', 'minister', 'government', 'policy', 'legislation', 'vote',
-  'president', 'prime minister', 'chief minister', 'party',
+  'president', 'prime minister', 'chief minister',
   // Tech & entertainment
   'release date', 'trailer', 'movie', 'series', 'album', 'song',
-  'iphone', 'android', 'update', 'version', 'app',
+  'iphone', 'android',
   // Factual lookups
   'who is', 'what is', 'what happened', 'when did', 'where is',
   'how much', 'how many', 'population', 'ceo of', 'founder of',
-  'capital of', 'gdp', 'salary', 'net worth', 'party', 'actor',
-  'cast', 'biography', 'history of', 'tell me about',
+  'capital of', 'gdp', 'salary', 'net worth', 'biography', 'history of',
+  'tell me about', 'search for', 'look up', 'find out',
 ];
 
 // Keywords for coding queries
@@ -55,28 +61,88 @@ const REASONING_TRIGGERS = [
   'pros and cons', 'advantages', 'disadvantages', 'difference between',
 ];
 
+// Indicators that a query is complex (needs a stronger model)
+const COMPLEXITY_TRIGGERS = [
+  // Deep analysis
+  'analyze', 'in depth', 'in-depth', 'detailed', 'comprehensive', 'thorough',
+  'explain in detail', 'break down', 'elaborate',
+  // Multi-step reasoning
+  'step by step', 'walk me through', 'how does', 'why does', 'explain how',
+  // Creative/nuanced
+  'write an essay', 'write a story', 'create a plan', 'design a',
+  'strategy', 'architecture', 'system design',
+  // Comparisons and evaluations
+  'compare', 'contrast', 'pros and cons', 'trade-offs', 'tradeoffs',
+  'which is better', 'should i use', 'recommend',
+  // Multi-part questions
+  'and also', 'additionally', 'furthermore', 'moreover',
+];
+
+// Simple greetings and short prompts that don't need a big model
+const SIMPLE_PATTERNS = [
+  /^(hi|hello|hey|yo|sup|hola|namaste|good morning|good evening|good afternoon|thanks|thank you|ok|okay|bye|goodbye|gm|gn)\b/i,
+  /^.{0,15}$/,  // Very short messages (under 15 chars)
+];
+
 export function classifyQuery(message: string): QueryType {
-  const lower = message.toLowerCase();
+  return fullClassify(message).type;
+}
 
-  // Check for search triggers
-  const searchScore = SEARCH_TRIGGERS.filter(t => lower.includes(t)).length;
-  const codingScore = CODING_TRIGGERS.filter(t => lower.includes(t)).length;
-  const reasoningScore = REASONING_TRIGGERS.filter(t => lower.includes(t)).length;
+/**
+ * Full classification: returns both type and complexity
+ */
+export function fullClassify(message: string): QueryClassification {
+  const lower = message.toLowerCase().trim();
 
-  // Priority: search > coding > reasoning > general
-  if (searchScore >= 1) return 'search';
-  if (codingScore >= 2) return 'coding';
-  if (reasoningScore >= 1) return 'reasoning';
-
-  // If it's a question that might need facts (contains ?)
-  if (lower.includes('?') && lower.length > 20) {
-    // Simple heuristic: questions about things/people/places likely need search
-    if (/\b(who|what|when|where|how much|how many)\b/.test(lower)) {
-      return 'search';
+  // ─── Check for simple greetings first ─────────
+  for (const pattern of SIMPLE_PATTERNS) {
+    if (pattern.test(lower)) {
+      return { type: 'general', complexity: 'simple' };
     }
   }
 
-  return 'general';
+  // ─── Score each category ──────────────────────
+  const searchScore = SEARCH_TRIGGERS.filter(t => lower.includes(t)).length;
+  const codingScore = CODING_TRIGGERS.filter(t => lower.includes(t)).length;
+  const reasoningScore = REASONING_TRIGGERS.filter(t => lower.includes(t)).length;
+  const complexityScore = COMPLEXITY_TRIGGERS.filter(t => lower.includes(t)).length;
+
+  // ─── Determine type ───────────────────────────
+  let type: QueryType = 'general';
+
+  // Priority: search > reasoning > coding > general
+  if (searchScore >= 1) {
+    type = 'search';
+  } else if (reasoningScore >= 1) {
+    type = 'reasoning';
+  } else if (codingScore >= 2) {
+    type = 'coding';
+  }
+
+  // Questions about facts/entities that weren't caught by keywords
+  if (type === 'general' && lower.includes('?') && lower.length > 20) {
+    if (/\b(who|what|when|where|how much|how many|is it true|did)\b/.test(lower)) {
+      type = 'search';
+    }
+  }
+
+  // ─── Determine complexity ─────────────────────
+  let complexity: Complexity = 'simple';
+
+  if (complexityScore >= 1) {
+    complexity = 'complex';
+  } else if (lower.length > 150) {
+    // Long messages are usually more complex
+    complexity = 'complex';
+  } else if (type === 'reasoning') {
+    // Reasoning queries are inherently complex
+    complexity = 'complex';
+  } else if ((lower.match(/\?/g) || []).length >= 2) {
+    // Multiple questions = complex
+    complexity = 'complex';
+  }
+
+  return { type, complexity };
 }
 
 /**

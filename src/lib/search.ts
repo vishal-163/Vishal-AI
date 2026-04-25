@@ -40,7 +40,7 @@ export async function webSearch(query: string): Promise<SearchResponse> {
         const results = (data.organic || []).map((r: any) => ({
           title: r.title,
           url: r.link,
-          description: r.snippet,
+          description: (r.snippet || '').replace(/<[^>]*>?/gm, ''), // Strip HTML tags
         }));
         return { results, query };
       }
@@ -58,7 +58,7 @@ export async function webSearch(query: string): Promise<SearchResponse> {
         const results = (data.web?.results || []).map((r: any) => ({
           title: r.title,
           url: r.url,
-          description: r.description,
+          description: (r.description || '').replace(/<[^>]*>?/gm, ''), // Strip HTML tags
         }));
         return { results, query };
       }

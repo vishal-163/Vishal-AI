@@ -118,10 +118,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto pb-20 space-y-8">
+    <div className="max-w-3xl mx-auto pb-20 space-y-6 sm:space-y-8 px-4 sm:px-6 py-6 sm:py-0">
       <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Settings</h1>
-        <p className="text-sm text-zinc-500 mt-1">Manage your identity and intelligence preferences</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Settings</h1>
+        <p className="text-xs sm:text-sm text-zinc-500 mt-1">Manage your identity and intelligence preferences</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
@@ -130,14 +130,14 @@ export default function SettingsPage() {
           <div className="px-6 py-4 border-b border-white/[0.06] bg-white/[0.01]">
             <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Profile Architecture</h2>
           </div>
-          <div className="p-8 space-y-8">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-500 to-violet-500 flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-brand-500/20">
+          <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-500 to-violet-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold shadow-xl shadow-brand-500/20">
                 {name?.[0]?.toUpperCase() || profile?.email?.[0]?.toUpperCase() || 'U'}
               </div>
-              <div className="space-y-1">
-                <p className="text-xl font-bold text-white">{name || 'User Instance'}</p>
-                <p className="text-sm text-zinc-500">{profile?.email}</p>
+              <div className="space-y-1 text-center sm:text-left">
+                <p className="text-lg sm:text-xl font-bold text-white">{name || 'User Instance'}</p>
+                <p className="text-xs sm:text-sm text-zinc-500">{profile?.email}</p>
               </div>
             </div>
 
@@ -170,7 +170,7 @@ export default function SettingsPage() {
           <div className="px-6 py-4 border-b border-white/[0.06] bg-white/[0.01]">
             <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Intelligence Configuration</h2>
           </div>
-          <div className="p-8 space-y-10">
+          <div className="p-5 sm:p-8 space-y-8 sm:space-y-10">
             {/* Memory Toggle */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -188,12 +188,12 @@ export default function SettingsPage() {
             {/* Tone Selection */}
             <div className="space-y-4">
               <p className="font-bold text-zinc-200">Communication Tone</p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {['professional', 'friendly', 'concise'].map((tone) => (
                   <button
                     key={tone}
                     onClick={() => setPreferences({ ...preferences, tone: tone as any })}
-                    className={`px-4 py-3 rounded-xl border text-sm font-bold capitalize transition-all ${
+                    className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-xs sm:text-sm font-bold capitalize transition-all ${
                       preferences.tone === tone 
                         ? 'bg-brand-500 border-brand-500 text-white shadow-lg shadow-brand-500/20' 
                         : 'bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:border-white/20'
@@ -228,11 +228,11 @@ export default function SettingsPage() {
         </div>
 
         {/* Sticky Bottom Bar */}
-        <div className="fixed bottom-0 left-0 right-0 lg:left-[260px] p-4 bg-[#09090b]/80 backdrop-blur-xl border-t border-white/[0.06] z-30">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
+        <div className="fixed bottom-0 left-0 right-0 lg:left-[260px] p-3 sm:p-4 bg-[#09090b]/80 backdrop-blur-xl border-t border-white/[0.06] z-30 safe-bottom">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
             <button 
               onClick={deleteAccount} 
-              className="px-4 py-2 rounded-xl text-[11px] font-bold text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all uppercase tracking-widest"
+              className="hidden sm:block px-4 py-2 rounded-xl text-[11px] font-bold text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all uppercase tracking-widest"
             >
               Purge Account
             </button>
@@ -240,7 +240,7 @@ export default function SettingsPage() {
             <button 
               onClick={saveSettings} 
               disabled={saving} 
-              className="px-8 py-3 rounded-xl bg-white text-black font-bold text-sm hover:scale-105 active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-white/10"
+              className="flex-1 sm:flex-none px-6 sm:px-8 py-3 rounded-xl bg-white text-black font-bold text-sm hover:scale-105 active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-white/10"
             >
               {saving ? 'Saving...' : saved ? '✓ Changes Saved' : 'Save All Changes'}
             </button>

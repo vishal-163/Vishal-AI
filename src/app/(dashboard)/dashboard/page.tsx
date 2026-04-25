@@ -384,7 +384,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="border-t border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl sticky bottom-0">
+      <div className="border-t border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl sticky bottom-0 safe-bottom">
         <div className="max-w-3xl mx-auto px-4 py-5">
           <div className="relative">
             <textarea

@@ -83,36 +83,36 @@ export default function UsagePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 py-6 sm:py-0">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Usage</h1>
-        <p className="text-sm text-zinc-500 mt-1">Monitor your API consumption over the last 30 days</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Usage</h1>
+        <p className="text-xs sm:text-sm text-zinc-500 mt-1">Monitor your API consumption over the last 30 days</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="stat-card">
           <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Requests</span>
-          <span className="text-3xl font-bold text-white">{formatNumber(totalRequests)}</span>
+          <span className="text-2xl sm:text-3xl font-bold text-white">{formatNumber(totalRequests)}</span>
           <span className="text-xs text-zinc-600">Last 30 days</span>
         </div>
         <div className="stat-card">
           <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Tokens</span>
-          <span className="text-3xl font-bold text-white">{formatNumber(totalTokens)}</span>
+          <span className="text-2xl sm:text-3xl font-bold text-white">{formatNumber(totalTokens)}</span>
           <span className="text-xs text-zinc-600">Last 30 days</span>
         </div>
         <div className="stat-card">
           <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Avg Latency</span>
-          <span className="text-3xl font-bold text-white">{avgLatency}ms</span>
+          <span className="text-2xl sm:text-3xl font-bold text-white">{avgLatency}ms</span>
           <span className="text-xs text-zinc-600">Per request</span>
         </div>
       </div>
 
       {/* Daily Requests Chart */}
-      <div className="glass-card p-6">
-        <h2 className="text-sm font-semibold text-zinc-200 mb-6">Daily Requests</h2>
-        <div className="flex items-end gap-[3px] h-40">
+      <div className="glass-card p-4 sm:p-6">
+        <h2 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-4 sm:mb-6">Daily Requests</h2>
+        <div className="flex items-end gap-[2px] sm:gap-[3px] h-28 sm:h-40">
           {dailyData.map((d, i) => (
             <div key={i} className="flex-1 flex flex-col items-center group relative">
               {/* Tooltip */}
@@ -137,9 +137,9 @@ export default function UsagePage() {
       </div>
 
       {/* Token Usage Chart */}
-      <div className="glass-card p-6">
-        <h2 className="text-sm font-semibold text-zinc-200 mb-6">Token Usage</h2>
-        <div className="flex items-end gap-[3px] h-40">
+      <div className="glass-card p-4 sm:p-6">
+        <h2 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-4 sm:mb-6">Token Usage</h2>
+        <div className="flex items-end gap-[2px] sm:gap-[3px] h-28 sm:h-40">
           {dailyData.map((d, i) => (
             <div key={i} className="flex-1 flex flex-col items-center group relative">
               <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-10">

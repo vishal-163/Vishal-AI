@@ -149,7 +149,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="h-screen bg-[#09090b] flex overflow-hidden">
+    <div className="h-screen h-[100dvh] bg-[#09090b] flex overflow-hidden">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />

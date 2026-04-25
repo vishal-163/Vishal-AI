@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { groqChatCompletion, getDefaultModel } from '@/lib/groq';
+import { groqChatCompletion, selectModel } from '@/lib/groq';
 import { hashApiKey, checkRateLimit, validateChatRequest } from '@/lib/utils';
 
 // Use service role client for API key validation (no user session context)
@@ -155,17 +155,18 @@ export async function POST(request: NextRequest) {
     }
 
     // ─── 8. Smart Query Classification ─────────────
-    const { classifyQuery, getModePrompt } = await import('@/lib/classifier');
-    const { webSearch, formatSearchContext } = await import('@/lib/search');
+    const { fullClassify, getModePrompt } = await import('@/lib/classifier');
 
     const lastUserMessage = [...body.messages].reverse().find((m: { role: string }) => m.role === 'user')?.content || '';
-    const queryType = classifyQuery(lastUserMessage);
+    const classification = fullClassify(lastUserMessage);
+    const { type: queryType, complexity } = classification;
 
-    // ─── 9. Web search for time-sensitive queries ──
+    // ─── 9. Web search for factual queries ─────────
     let searchContext = '';
     let sources: { title: string; url: string }[] = [];
 
     if (queryType === 'search') {
+      const { webSearch, formatSearchContext } = await import('@/lib/search');
       const searchResults = await webSearch(lastUserMessage);
       if (searchResults.results.length > 0) {
         searchContext = formatSearchContext(searchResults);
@@ -174,48 +175,37 @@ export async function POST(request: NextRequest) {
     }
 
     // ─── 10. Build system prompt ───────────────────
-    const BRAND_SYSTEM_PROMPT = `You are Vishal AI, an elite AI assistant.
+    const BRAND_SYSTEM_PROMPT = `Expert assistant Vishal AI. You prioritize technical accuracy and helpfulness above all else.
 
-USER IDENTITY:
-- The user's name is ${userName}.
-- You must address them by their name provided above.
-- If their name is "User", be polite and professional.
+CORE RULES:
+1. TRUTH FIRST: Never fabricate facts, dates, names, or citations. If you don't know, say so.
+2. CONCISE: Be direct. No filler words. No repetition.
+3. FORMATTING: Use Markdown ONLY. NEVER use HTML tags (e.g., <br>, <p>, <b>). No pipes (|) except for tables.
+4. IDENTITY: You are Vishal AI, created by Vishal R. Address the user as ${userName}. Tone: ${prefs.tone}.
 
-PERSONALIZATION:
-- Tone: ${prefs.tone}.
-- Response Style: ${prefs.style}.
-- Memory: ${prefs.memory_enabled ? 'Enabled. Use the user\'s name and conversation context to be personalized.' : 'Disabled.'}
+${getModePrompt(queryType)}
+${searchContext}
 
-IDENTITY (only when directly asked):
-- Your name is Vishal AI. 
-- You were created by Vishal R.
-- Only mention your creator details when explicitly asked.
+Answer the user's request accurately and professionally.`;
 
-CORE BEHAVIOR:
-- Understand user intent deeply. Infer meaning from short prompts.
-- Handle follow-up questions using conversation context.
-- Sound natural, confident, and friendly — not robotic.
-- Match the user's energy and communication style.
-- No unnecessary disclaimers or filler phrases.
+    // ─── 11. Smart Model & Temperature Routing ──────
+    // Nontrivial queries go to the 120B model for max intelligence
+    const model = (complexity === 'complex' || queryType !== 'general') 
+      ? 'openai/gpt-oss-120b' 
+      : 'llama-3.3-70b-versatile';
 
-ACCURACY:
-- Accuracy is your #1 priority. Never fabricate facts.
-- If unsure, say so clearly. Distinguish fact from opinion.
-- For comparisons, present pros and cons fairly.
-- It's better to give a short honest answer than a long wrong one.
-
-RESPONSE STYLE:
-- Be CONCISE. Get to the point. No repetition.
-- Simple questions → short direct answers (1-3 sentences).
-- Complex questions → structured with bullet points or numbered lists.
-- Code questions → clean code with brief explanation.
-- Math/logic → step-by-step reasoning.
-- NEVER repeat yourself within the same response.
-
-STRICT RULES:
-- NEVER mention Qwen, Alibaba, Tongyi, Groq, Meta, LLaMA, or any underlying model/provider.
-- Do NOT include <think> tags, reasoning traces, or chain-of-thought blocks.
-- No fake citations, no invented statistics, no pretending outdated info is current.${getModePrompt(queryType)}${searchContext}`;
+    let temperature: number;
+    if (body.temperature !== undefined) {
+      temperature = body.temperature;
+    } else {
+      // Lower temperature = more deterministic/accurate
+      switch (queryType) {
+        case 'search':    temperature = 0.1; break; // Facts only
+        case 'coding':    temperature = 0.2; break; // Precise code
+        case 'reasoning': temperature = 0.3; break; // Analytical
+        default:          temperature = 0.5; break; // Balanced
+      }
+    }
 
     // Prepend branding prompt to messages
     const brandedMessages = [
@@ -223,19 +213,70 @@ STRICT RULES:
       ...body.messages.filter((m: { role: string; content?: string }) => m.role !== 'system' || !m.content?.includes('Vishal AI')),
     ];
 
-    // ─── 11. Send request to Groq ─────────────────
-    const model = getDefaultModel();
-    const groqResponse = await groqChatCompletion({
-      model,
-      messages: brandedMessages,
-      temperature: queryType === 'coding' ? 0.3 : (body.temperature ?? 0.7),
-      max_tokens: body.max_tokens ?? 4096,
-    });
+    // ─── 13. Send request with fallback ────────────
+    let data: any;
+    let usedModel = model;
+    let usedProvider = 'groq';
 
-    const data = await groqResponse.json();
+    const { groqChatCompletion } = await import('@/lib/groq');
+
+    try {
+      // Primary: Groq
+      const groqResponse = await groqChatCompletion({
+        model: model,
+        messages: brandedMessages,
+        temperature,
+        max_tokens: body.max_tokens ?? 4096,
+      });
+
+      data = await groqResponse.json();
+    } catch (groqError) {
+      console.warn(`Groq failed (model: ${model}):`, groqError);
+
+      // Fallback 1: Try a different Groq model
+      if (model !== 'llama-3.3-70b-versatile') {
+        try {
+          console.log('Falling back to llama-3.3-70b-versatile...');
+          const fallbackResponse = await groqChatCompletion({
+            model: 'llama-3.3-70b-versatile',
+            messages: brandedMessages,
+            temperature,
+            max_tokens: body.max_tokens ?? 4096,
+          });
+          const fallbackData = await fallbackResponse.json();
+          data = fallbackData;
+          usedModel = 'llama-3.3-70b-versatile';
+        } catch (fallbackError) {
+          console.warn('Groq fallback also failed:', fallbackError);
+        }
+      }
+
+      // Fallback 2: Google Gemini (if configured)
+      if (!data) {
+        const { isGeminiAvailable, geminiChatCompletion } = await import('@/lib/gemini');
+        if (isGeminiAvailable()) {
+          console.log('Falling back to Google Gemini...');
+          try {
+            data = await geminiChatCompletion({
+              messages: brandedMessages,
+              temperature,
+              max_tokens: body.max_tokens ?? 4096,
+            });
+            usedModel = 'gemini-2.5-flash';
+            usedProvider = 'gemini';
+          } catch (geminiError) {
+            console.error('Gemini fallback also failed:', geminiError);
+            throw groqError; // Re-throw original error
+          }
+        } else {
+          throw groqError; // No fallback available
+        }
+      }
+    }
+
     const latencyMs = Date.now() - startTime;
 
-    // ─── 12. Strip <think> tags from response ─────
+    // ─── 14. Strip <think> tags from response ─────
     const stripThinkTags = (text: string): string => {
       return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
     };
@@ -248,7 +289,7 @@ STRICT RULES:
       } : choice.message,
     }));
 
-    // ─── 13. Return branded OpenAI-compatible response
+    // ─── 16. Return branded OpenAI-compatible response
     const response = {
       id: data.id || `chatcmpl-${Date.now()}`,
       object: 'chat.completion',
@@ -259,12 +300,14 @@ STRICT RULES:
       // Include search metadata for UI to display sources
       _meta: {
         query_type: queryType,
+        complexity,
+        provider: usedProvider,
         sources: sources.length > 0 ? sources : undefined,
         latency_ms: latencyMs,
       },
     };
 
-    // ─── 14. Save usage log (async, don't block) ──
+    // ─── 17. Save usage log (async, don't block) ──
     if (userId) {
       supabase
         .from('usage_logs')
